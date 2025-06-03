@@ -1,16 +1,19 @@
-# user_management_app
+# User Management App
 
-A new Flutter project.
+## Features
+- User list with infinite scroll and search
+- User details with posts and todos
+- Create local posts (persisted with Hive)
+- Light/dark theme toggle
+- Pull-to-refresh
 
-## Getting Started
+## Architecture
+- **BLoC Pattern**: Separated UI/business logic.
+- **Layered Architecture**: Data (API + Hive), Domain (models), Presentation (BLoCs + UI).
+- **Dependency Management**: Dio for HTTP, Hive for local storage.
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Setup
+1. Clone the repo
+2. Run `flutter pub get`
+3. Run `flutter pub run build_runner build` (for Hive codegen)
+4. Run `flutter run`
