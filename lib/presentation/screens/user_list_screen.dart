@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:user_management_app/data/repositories/user_repository.dart';
+import 'package:user_management_app/presentation/bloc/user_detail/user_detail_bloc.dart';
+import 'package:user_management_app/presentation/bloc/user_detail/user_detail_event.dart';
 import '../bloc/user_list/user_list_bloc.dart';
 import '../bloc/user_list/user_list_event.dart';
 import '../bloc/user_list/user_list_state.dart';
@@ -80,7 +83,12 @@ class _UserListScreenState extends State<UserListScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => UserDetailScreen(user: user),
+                              builder: (_) => BlocProvider(
+                                create: (_) =>
+                                    UserDetailBloc(UserRepository())
+                                      ..add(FetchUserDetail(user.id)),
+                                child: UserDetailScreen(user: user),
+                              ),
                             ),
                           );
                         },

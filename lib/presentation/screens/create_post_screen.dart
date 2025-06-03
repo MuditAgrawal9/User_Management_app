@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/user_model.dart';
+import '../../data/models/post_model.dart';
+import '../bloc/user_detail/user_detail_bloc.dart';
+import '../bloc/user_detail/user_detail_event.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final UserModel user;
@@ -42,9 +46,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     _formKey.currentState!.save();
-                    // Here, you can store the post locally or in a provider/BLoC
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Post created locally!')),
+                    // Create a new PostModel (negative id for local)
+                    final newPost = PostModel(
+                      id: DateTime.now().millisecondsSinceEpoch * -1,
+                      title: _title,
+                      body: _body,
+                    );
+                    // Dispatch AddLocalPost event
+                    context.read<UserDetailBloc>().add(
+                      AddLocalPost(widget.user.id, newPost),
                     );
                     Navigator.pop(context);
                   }
