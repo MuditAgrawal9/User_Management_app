@@ -28,7 +28,22 @@ A Flutter application for managing users with infinite scroll, search, offline p
 ---
 
 ## Setup
-1. Clone the repo
-2. Run `flutter pub get`
-3. Run `flutter pub run build_runner build` (for Hive codegen)
-4. Run `flutter run`
+
+1. Clone the repo:
+    ```
+    git clone https://github.com/your-username/user_management_app.git
+    cd user_management_app
+    ```
+2. Install dependencies:
+    ```
+    flutter pub get
+    ```
+3. Generate Hive adapters:
+    ```
+    flutter pub run build_runner build
+    ```
+4. Run the app:
+    ```
+    flutter run
+    ```
+
