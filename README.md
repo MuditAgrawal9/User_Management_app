@@ -1,16 +1,31 @@
 # User Management App
 
+A Flutter application for managing users with infinite scroll, search, offline post creation, and more.
+
+---
+
 ## Features
+
 - User list with infinite scroll and search
 - User details with posts and todos
 - Create local posts (persisted with Hive)
 - Light/dark theme toggle
 - Pull-to-refresh
 
+---
+
 ## Architecture
-- **BLoC Pattern**: Separated UI/business logic.
-- **Layered Architecture**: Data (API + Hive), Domain (models), Presentation (BLoCs + UI).
-- **Dependency Management**: Dio for HTTP, Hive for local storage.
+
+- **BLoC Pattern:** Separation of UI and business logic for scalability and testability.
+- **Layered Architecture:**
+  - **Data:** API (DummyJSON) & Hive for local storage
+  - **Domain:** Models (User, Post, Todo)
+  - **Presentation:** BLoCs, UI screens, and widgets
+- **Dependency Management:**
+  - Dio for HTTP requests
+  - Hive for local storage
+
+---
 
 ## Setup
 1. Clone the repo
