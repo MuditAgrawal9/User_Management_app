@@ -11,8 +11,20 @@ class UserRepository {
   /// Fetches paginated list of users from the remote data source
   /// [limit]: Number of items per page
   /// [skip]: Number of items to skip (for pagination)
-  Future<List<UserModel>> getUsers({int limit = 10, int skip = 0}) =>
-      api.getUsers(limit: limit, skip: skip);
+  Future<List<UserModel>> getUsers({int limit = 10, int skip = 0}) async {
+    // print('[UserRepository] getUsers called with limit=$limit, skip=$skip');
+    // final stopwatch = Stopwatch()..start();
+    try {
+      final users = await api.getUsers(limit: limit, skip: skip);
+      // print(
+      //   '[UserRepository] getUsers returned ${users.length} users in ${stopwatch.elapsedMilliseconds}ms',
+      // );
+      return users;
+    } catch (e) {
+      // print('[UserRepository] getUsers ERROR: $e');
+      rethrow;
+    }
+  }
 
   /// Searches users by name using the remote data source
   /// [query]: Search term to filter users

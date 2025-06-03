@@ -3,6 +3,13 @@ import '../../../data/repositories/user_repository.dart';
 import '../../../data/models/user_model.dart';
 import 'user_list_event.dart';
 import 'user_list_state.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
+import 'package:stream_transform/stream_transform.dart';
+
+EventTransformer<E> throttleDroppable<E>(Duration duration) {
+  return (events, mapper) =>
+      droppable<E>().call(events.throttle(duration), mapper);
+}
 
 /// BLoC responsible for managing user list state including:
 /// - Initial user loading
@@ -24,7 +31,10 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   UserListBloc(this.repository) : super(UserListInitial()) {
     on<FetchUsers>(_onFetchUsers);
     on<SearchUsers>(_onSearchUsers);
-    on<LoadMoreUsers>(_onLoadMoreUsers);
+    on<LoadMoreUsers>(
+      _onLoadMoreUsers,
+      transformer: throttleDroppable(const Duration(milliseconds: 500)),
+    );
   }
 
   /// Handles initial user fetch or refresh action
@@ -42,7 +52,12 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       final users = await repository.getUsers(limit: _limit, skip: _skip);
       _users = users;
       _hasReachedMax = users.length < _limit;
-      emit(UserListLoaded(_users, hasReachedMax: _hasReachedMax));
+      emit(
+        UserListLoaded(
+          List<UserModel>.from(_users),
+          hasReachedMax: _hasReachedMax,
+        ),
+      );
     } catch (e) {
       emit(UserListError('Failed to load users'));
     }
@@ -67,7 +82,12 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
       );
       _users = users;
       _hasReachedMax = users.length < _limit;
-      emit(UserListLoaded(_users, hasReachedMax: _hasReachedMax));
+      emit(
+        UserListLoaded(
+          List<UserModel>.from(_users),
+          hasReachedMax: _hasReachedMax,
+        ),
+      );
     } catch (e) {
       emit(UserListError('Search failed'));
     }
@@ -79,6 +99,9 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     LoadMoreUsers event,
     Emitter<UserListState> emit,
   ) async {
+    // print(
+    //   '[UserListBloc] LoadMoreUsers event received. _isFetching=$_isFetching, _hasReachedMax=$_hasReachedMax, _skip=$_skip',
+    // );
     if (_isFetching || _hasReachedMax) return;
     _isFetching = true;
     _skip += _limit;
@@ -93,13 +116,21 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
           skip: _skip,
         );
       }
+      // print(
+      //   '[UserListBloc] Loaded ${users.length} users for skip=$_skip, limit=$_limit',
+      // );
       if (users.isEmpty) {
         _hasReachedMax = true;
       } else {
         _users.addAll(users);
         _hasReachedMax = users.length < _limit;
       }
-      emit(UserListLoaded(_users, hasReachedMax: _hasReachedMax));
+      emit(
+        UserListLoaded(
+          List<UserModel>.from(_users),
+          hasReachedMax: _hasReachedMax,
+        ),
+      );
     } catch (e) {
       emit(UserListError('Failed to load more users'));
     }
