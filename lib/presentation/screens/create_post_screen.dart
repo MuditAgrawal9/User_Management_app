@@ -7,8 +7,7 @@ import '../bloc/user_detail/user_detail_event.dart';
 
 class CreatePostScreen extends StatefulWidget {
   final UserModel user;
-  CreatePostScreen({required this.user});
-
+  const CreatePostScreen({super.key, required this.user});
   @override
   State<CreatePostScreen> createState() => _CreatePostScreenState();
 }

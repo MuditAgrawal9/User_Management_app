@@ -8,10 +8,10 @@ import '../bloc/user_list/user_list_event.dart';
 import '../bloc/user_list/user_list_state.dart';
 import '../widgets/user_list_item.dart';
 import '../widgets/loading_indicator.dart';
-import '../../data/models/user_model.dart';
 import 'user_detail_screen.dart';
 
 class UserListScreen extends StatefulWidget {
+  const UserListScreen({super.key});
   @override
   State<UserListScreen> createState() => _UserListScreenState();
 }

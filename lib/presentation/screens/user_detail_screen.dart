@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../data/models/user_model.dart';
 import '../bloc/user_detail/user_detail_bloc.dart';
-import '../bloc/user_detail/user_detail_event.dart';
 import '../bloc/user_detail/user_detail_state.dart';
 import 'create_post_screen.dart';
 
 class UserDetailScreen extends StatelessWidget {
   final UserModel user;
 
-  UserDetailScreen({required this.user});
+  const UserDetailScreen({super.key, required this.user});
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +33,7 @@ class UserDetailScreen extends StatelessWidget {
           if (state is UserDetailLoading) {
             return Center(child: CircularProgressIndicator());
           } else if (state is UserDetailLoaded) {
-            print('Number of posts: ${state.posts.length}');
+            // print('Number of posts: ${state.posts.length}');
             return SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

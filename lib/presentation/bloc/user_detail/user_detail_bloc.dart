@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../../data/repositories/local_posts_repository.dart';
-import '../../../data/models/post_model.dart';
 import 'user_detail_event.dart';
 import 'user_detail_state.dart';
 

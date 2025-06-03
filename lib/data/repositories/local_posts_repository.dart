@@ -12,7 +12,7 @@ class LocalPostsRepository {
   List<PostModel> getLocalPosts(int userId) {
     final raw = _box.get(userId.toString());
     if (raw == null) return [];
-    return List<PostModel>.from(raw as List);
+    return List<PostModel>.from(raw);
   }
 
   void addLocalPost(int userId, PostModel post) {

@@ -5,7 +5,7 @@ class UserListItem extends StatelessWidget {
   final UserModel user;
   final VoidCallback onTap;
 
-  UserListItem({required this.user, required this.onTap});
+  const UserListItem({super.key, required this.user, required this.onTap});
 
   @override
   Widget build(BuildContext context) => ListTile(
