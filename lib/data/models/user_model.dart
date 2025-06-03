@@ -13,6 +13,7 @@ class UserModel {
     required this.image,
   });
 
+  /// Factory constructor to create a UserModel from a JSON map.
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
     id: json['id'],
     firstName: json['firstName'],

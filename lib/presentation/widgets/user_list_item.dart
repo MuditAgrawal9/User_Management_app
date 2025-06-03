@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../data/models/user_model.dart';
 
+/// A reusable list tile widget for displaying a user's avatar, name, and email.
+/// Used in the user list screen to represent each user.
+/// [user]: The user data to display.
+/// [onTap]: Callback triggered when the tile is tapped.
 class UserListItem extends StatelessWidget {
   final UserModel user;
   final VoidCallback onTap;

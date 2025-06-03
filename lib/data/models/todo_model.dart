@@ -5,6 +5,7 @@ class TodoModel {
 
   TodoModel({required this.id, required this.todo, required this.completed});
 
+  /// Factory constructor to create a TodoModel from a JSON map.
   factory TodoModel.fromJson(Map<String, dynamic> json) => TodoModel(
     id: json['id'],
     todo: json['todo'],

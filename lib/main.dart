@@ -9,14 +9,21 @@ import 'data/models/post_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Hive for local storage
   await Hive.initFlutter();
+
+  // Register Hive adapter for PostModel
   Hive.registerAdapter(PostModelAdapter());
+
   await Hive.openBox<List>(
     'local_posts',
   ); // Box for storing local posts per user
+
   runApp(MyApp());
 }
 
+/// Root application widget with theme management and state initialization
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
   @override
@@ -26,6 +33,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool _isDark = false;
 
+  /// Toggles between light and dark themes
   void _toggleTheme() => setState(() => _isDark = !_isDark);
 
   @override
@@ -34,7 +42,7 @@ class _MyAppState extends State<MyApp> {
       providers: [BlocProvider(create: (_) => UserListBloc(UserRepository()))],
       child: MaterialApp(
         title: 'User Management',
-        theme: _isDark ? darkTheme : lightTheme,
+        theme: _isDark ? darkTheme : lightTheme, // Theme configuration
         home: Builder(
           builder: (context) => Scaffold(
             appBar: AppBar(
@@ -46,6 +54,7 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             ),
+            // Main screen displaying the user list
             body: UserListScreen(),
           ),
         ),

@@ -5,6 +5,7 @@ import '../../data/models/post_model.dart';
 import '../bloc/user_detail/user_detail_bloc.dart';
 import '../bloc/user_detail/user_detail_event.dart';
 
+/// Screen for creating new posts locally for a specific user
 class CreatePostScreen extends StatefulWidget {
   final UserModel user;
   const CreatePostScreen({super.key, required this.user});
@@ -13,6 +14,7 @@ class CreatePostScreen extends StatefulWidget {
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
+  // Form key for validation and state management
   final _formKey = GlobalKey<FormState>();
   String _title = '';
   String _body = '';
@@ -27,12 +29,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           key: _formKey,
           child: Column(
             children: [
+              // Title input field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Title'),
                 onSaved: (val) => _title = val ?? '',
                 validator: (val) =>
                     val == null || val.isEmpty ? 'Enter title' : null,
               ),
+
+              // Body input field
               TextFormField(
                 decoration: InputDecoration(labelText: 'Body'),
                 onSaved: (val) => _body = val ?? '',
@@ -40,6 +45,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                     val == null || val.isEmpty ? 'Enter body' : null,
               ),
               SizedBox(height: 20),
+
+              // Submission button
               ElevatedButton(
                 child: Text('Add Post'),
                 onPressed: () {
@@ -51,10 +58,14 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                       title: _title,
                       body: _body,
                     );
+
                     // Dispatch AddLocalPost event
+                    // Notify BLoC to add the local post
                     context.read<UserDetailBloc>().add(
                       AddLocalPost(widget.user.id, newPost),
                     );
+
+                    // Return to previous screen
                     Navigator.pop(context);
                   }
                 },

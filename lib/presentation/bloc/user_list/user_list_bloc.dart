@@ -4,10 +4,18 @@ import '../../../data/models/user_model.dart';
 import 'user_list_event.dart';
 import 'user_list_state.dart';
 
+/// BLoC responsible for managing user list state including:
+/// - Initial user loading
+/// - Search functionality
+/// - Pagination with infinite scroll
+/// - Error state handling
 class UserListBloc extends Bloc<UserListEvent, UserListState> {
+  // Pagination configuration
   final UserRepository repository;
-  static const int _limit = 10;
-  int _skip = 0;
+  static const int _limit = 10; // Number of items per page
+  int _skip = 0; // Number of items to skip for pagination
+
+  // Internal state variables
   bool _isFetching = false;
   String _currentQuery = '';
   List<UserModel> _users = [];
@@ -19,6 +27,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     on<LoadMoreUsers>(_onLoadMoreUsers);
   }
 
+  /// Handles initial user fetch or refresh action
+  /// Resets all pagination parameters and fetches first page
   Future<void> _onFetchUsers(
     FetchUsers event,
     Emitter<UserListState> emit,
@@ -38,6 +48,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     }
   }
 
+  /// Handles user search functionality
+  /// Resets pagination and maintains current search query
   Future<void> _onSearchUsers(
     SearchUsers event,
     Emitter<UserListState> emit,
@@ -61,6 +73,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     }
   }
 
+  /// Handles pagination for infinite scroll
+  /// Prevents duplicate requests and checks for remaining data
   Future<void> _onLoadMoreUsers(
     LoadMoreUsers event,
     Emitter<UserListState> emit,

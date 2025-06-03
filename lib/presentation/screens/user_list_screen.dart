@@ -10,6 +10,11 @@ import '../widgets/user_list_item.dart';
 import '../widgets/loading_indicator.dart';
 import 'user_detail_screen.dart';
 
+/// Main screen displaying paginated list of users with:
+/// - Infinite scroll pagination
+/// - Real-time search functionality
+/// - Pull-to-refresh capability
+/// - Navigation to user detail screen
 class UserListScreen extends StatefulWidget {
   const UserListScreen({super.key});
   @override
@@ -20,6 +25,7 @@ class _UserListScreenState extends State<UserListScreen> {
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
 
+  /// Handles pull-to-refresh action by resetting the user list
   Future<void> _handleRefresh() async {
     context.read<UserListBloc>().add(FetchUsers());
   }
@@ -27,10 +33,13 @@ class _UserListScreenState extends State<UserListScreen> {
   @override
   void initState() {
     super.initState();
+    // Initial data load
     context.read<UserListBloc>().add(FetchUsers());
+    // Set up infinite scroll listener
     _scrollController.addListener(_onScroll);
   }
 
+  /// Handles infinite scroll logic
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
@@ -44,6 +53,7 @@ class _UserListScreenState extends State<UserListScreen> {
       appBar: AppBar(title: const Text('Users')),
       body: Column(
         children: [
+          // Search Bar
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
@@ -54,6 +64,7 @@ class _UserListScreenState extends State<UserListScreen> {
                 border: OutlineInputBorder(),
               ),
               onChanged: (query) {
+                // Trigger search or reset based on query
                 if (query.isEmpty) {
                   context.read<UserListBloc>().add(FetchUsers());
                 } else {
@@ -62,14 +73,19 @@ class _UserListScreenState extends State<UserListScreen> {
               },
             ),
           ),
+
+          // User List with Refresh
           Expanded(
             child: RefreshIndicator(
               onRefresh: _handleRefresh,
               child: BlocBuilder<UserListBloc, UserListState>(
                 builder: (context, state) {
+                  // Loading State
                   if (state is UserListLoading) {
                     return LoadingIndicator();
-                  } else if (state is UserListLoaded) {
+                  }
+                  // Loaded State
+                  else if (state is UserListLoaded) {
                     if (state.users.isEmpty) {
                       return const Center(child: Text('No users found.'));
                     }
@@ -79,6 +95,7 @@ class _UserListScreenState extends State<UserListScreen> {
                           ? state.users.length
                           : state.users.length + 1,
                       itemBuilder: (context, index) {
+                        // Show loading indicator at bottom
                         if (index >= state.users.length) {
                           return LoadingIndicator();
                         }
@@ -86,6 +103,7 @@ class _UserListScreenState extends State<UserListScreen> {
                         return UserListItem(
                           user: user,
                           onTap: () {
+                            // Navigate to detail screen with new BLoC instance
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -101,9 +119,13 @@ class _UserListScreenState extends State<UserListScreen> {
                         );
                       },
                     );
-                  } else if (state is UserListError) {
+                  }
+                  // Error State
+                  else if (state is UserListError) {
                     return Center(child: Text(state.message));
                   }
+
+                  // Initial State
                   return const SizedBox.shrink();
                 },
               ),
@@ -116,6 +138,7 @@ class _UserListScreenState extends State<UserListScreen> {
 
   @override
   void dispose() {
+    // Clean up controllers
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
