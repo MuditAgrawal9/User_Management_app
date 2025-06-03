@@ -10,6 +10,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
   int _skip = 0;
   bool _isFetching = false;
   String _currentQuery = '';
+  List<UserModel> _users = [];
+  bool _hasReachedMax = false;
 
   UserListBloc(this.repository) : super(UserListInitial()) {
     on<FetchUsers>(_onFetchUsers);
@@ -24,9 +26,13 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     emit(UserListLoading());
     _skip = 0;
     _currentQuery = '';
+    _users = [];
+    _hasReachedMax = false;
     try {
       final users = await repository.getUsers(limit: _limit, skip: _skip);
-      emit(UserListLoaded(users, hasReachedMax: users.length < _limit));
+      _users = users;
+      _hasReachedMax = users.length < _limit;
+      emit(UserListLoaded(_users, hasReachedMax: _hasReachedMax));
     } catch (e) {
       emit(UserListError('Failed to load users'));
     }
@@ -39,13 +45,17 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     emit(UserListLoading());
     _skip = 0;
     _currentQuery = event.query;
+    _users = [];
+    _hasReachedMax = false;
     try {
       final users = await repository.searchUsers(
         event.query,
         limit: _limit,
         skip: _skip,
       );
-      emit(UserListLoaded(users, hasReachedMax: users.length < _limit));
+      _users = users;
+      _hasReachedMax = users.length < _limit;
+      emit(UserListLoaded(_users, hasReachedMax: _hasReachedMax));
     } catch (e) {
       emit(UserListError('Search failed'));
     }
@@ -55,9 +65,8 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
     LoadMoreUsers event,
     Emitter<UserListState> emit,
   ) async {
-    if (_isFetching || state is! UserListLoaded) return;
+    if (_isFetching || _hasReachedMax) return;
     _isFetching = true;
-    final currentState = state as UserListLoaded;
     _skip += _limit;
     try {
       List<UserModel> users;
@@ -70,8 +79,13 @@ class UserListBloc extends Bloc<UserListEvent, UserListState> {
           skip: _skip,
         );
       }
-      final allUsers = List<UserModel>.from(currentState.users)..addAll(users);
-      emit(UserListLoaded(allUsers, hasReachedMax: users.length < _limit));
+      if (users.isEmpty) {
+        _hasReachedMax = true;
+      } else {
+        _users.addAll(users);
+        _hasReachedMax = users.length < _limit;
+      }
+      emit(UserListLoaded(_users, hasReachedMax: _hasReachedMax));
     } catch (e) {
       emit(UserListError('Failed to load more users'));
     }
