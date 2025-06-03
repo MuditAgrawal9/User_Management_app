@@ -20,6 +20,10 @@ class _UserListScreenState extends State<UserListScreen> {
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
 
+  Future<void> _handleRefresh() async {
+    context.read<UserListBloc>().add(FetchUsers());
+  }
+
   @override
   void initState() {
     super.initState();
@@ -37,14 +41,14 @@ class _UserListScreenState extends State<UserListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Users')),
+      appBar: AppBar(title: const Text('Users')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Search by name...',
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -59,51 +63,61 @@ class _UserListScreenState extends State<UserListScreen> {
             ),
           ),
           Expanded(
-            child: BlocBuilder<UserListBloc, UserListState>(
-              builder: (context, state) {
-                if (state is UserListLoading) {
-                  return LoadingIndicator();
-                } else if (state is UserListLoaded) {
-                  if (state.users.isEmpty) {
-                    return Center(child: Text('No users found.'));
-                  }
-                  return ListView.builder(
-                    controller: _scrollController,
-                    itemCount: state.hasReachedMax
-                        ? state.users.length
-                        : state.users.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index >= state.users.length) {
-                        return LoadingIndicator();
-                      }
-                      final user = state.users[index];
-                      return UserListItem(
-                        user: user,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => BlocProvider(
-                                create: (_) =>
-                                    UserDetailBloc(UserRepository())
-                                      ..add(FetchUserDetail(user.id)),
-                                child: UserDetailScreen(user: user),
+            child: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: BlocBuilder<UserListBloc, UserListState>(
+                builder: (context, state) {
+                  if (state is UserListLoading) {
+                    return LoadingIndicator();
+                  } else if (state is UserListLoaded) {
+                    if (state.users.isEmpty) {
+                      return const Center(child: Text('No users found.'));
+                    }
+                    return ListView.builder(
+                      controller: _scrollController,
+                      itemCount: state.hasReachedMax
+                          ? state.users.length
+                          : state.users.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index >= state.users.length) {
+                          return LoadingIndicator();
+                        }
+                        final user = state.users[index];
+                        return UserListItem(
+                          user: user,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BlocProvider(
+                                  create: (_) =>
+                                      UserDetailBloc(UserRepository())
+                                        ..add(FetchUserDetail(user.id)),
+                                  child: UserDetailScreen(user: user),
+                                ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  );
-                } else if (state is UserListError) {
-                  return Center(child: Text(state.message));
-                }
-                return SizedBox.shrink();
-              },
+                            );
+                          },
+                        );
+                      },
+                    );
+                  } else if (state is UserListError) {
+                    return Center(child: Text(state.message));
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 }
