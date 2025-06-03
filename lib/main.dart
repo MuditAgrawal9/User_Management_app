@@ -4,8 +4,17 @@ import 'core/theme.dart';
 import 'data/repositories/user_repository.dart';
 import 'presentation/bloc/user_list/user_list_bloc.dart';
 import 'presentation/screens/user_list_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'data/models/post_model.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(PostModelAdapter());
+  await Hive.openBox<List>(
+    'local_posts',
+  ); // Box for storing local posts per user
   runApp(MyApp());
 }
 

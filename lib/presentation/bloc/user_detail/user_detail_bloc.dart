@@ -1,14 +1,13 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../data/repositories/user_repository.dart';
+import '../../../data/repositories/local_posts_repository.dart';
 import '../../../data/models/post_model.dart';
 import 'user_detail_event.dart';
 import 'user_detail_state.dart';
 
 class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
   final UserRepository repository;
-
-  // Map to store local posts per user
-  final Map<int, List<PostModel>> _localPosts = {};
+  final LocalPostsRepository localPostsRepo = LocalPostsRepository();
 
   UserDetailBloc(this.repository) : super(UserDetailInitial()) {
     on<FetchUserDetail>(_onFetchUserDetail);
@@ -23,8 +22,8 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
     try {
       final remotePosts = await repository.getUserPosts(event.userId);
       final todos = await repository.getUserTodos(event.userId);
-      final localPosts = _localPosts[event.userId] ?? [];
-      final allPosts = [...localPosts, ...remotePosts]; // Local posts at top
+      final localPosts = localPostsRepo.getLocalPosts(event.userId);
+      final allPosts = [...localPosts, ...remotePosts];
       emit(UserDetailLoaded(allPosts, todos));
     } catch (e) {
       emit(UserDetailError('Failed to load user details'));
@@ -35,20 +34,15 @@ class UserDetailBloc extends Bloc<UserDetailEvent, UserDetailState> {
     AddLocalPost event,
     Emitter<UserDetailState> emit,
   ) async {
-    print('🟢 Adding local post: ${event.post.title}');
-    // 1. Add the new local post
-    _localPosts.putIfAbsent(event.userId, () => []);
-    _localPosts[event.userId]!.insert(0, event.post);
+    localPostsRepo.addLocalPost(event.userId, event.post);
 
-    // 2. Merge local and remote posts
     if (state is UserDetailLoaded) {
       final currentState = state as UserDetailLoaded;
-      // Only include remote posts (positive IDs)
       final remotePosts = currentState.posts.where((p) => p.id > 0).toList();
-      final updatedPosts = [..._localPosts[event.userId]!, ...remotePosts];
-
-      print('🔄 Emitting ${updatedPosts.length} posts');
-      // 3. Emit new state
+      final updatedPosts = [
+        ...localPostsRepo.getLocalPosts(event.userId),
+        ...remotePosts,
+      ];
       emit(UserDetailLoaded(updatedPosts, currentState.todos));
     }
   }
